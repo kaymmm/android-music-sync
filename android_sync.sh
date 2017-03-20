@@ -3,7 +3,8 @@
 # options:
 # -x do not link files from playlists to temp storage
 # -d do not copy files to device
-while getopts "dx" arg; do
+# -p do not update smart playlists
+while getopts "dxp" arg; do
   case $arg in
     d)
       DEVICE=0
@@ -25,18 +26,21 @@ KDECONNECT_DIR=/home/kmiyake/.config/kdeconnect/$KDECONNECT_ID/kdeconnect_sftp/$
 KDECONNECT_MUSICDIR=$KDECONNECT_DIR/Music
 TMPDIR=/mnt/ostrich/MusicTransfer/
 LFMSYNC=$HOME/Developer/banshee-lastfm-sync/banshee-lastfm-sync
-PLGEN=$HOME/Developer/banshee-playlist-generator/plgen.py
+RBSYNC=$HOME/Developer/rhythmbox-banshee-metadata-import/import.py
+PLGEN=$HOME/Developer/rhythmbox-playlist-generator/plgen.py
 
 if [[ -e ${LFMSYNC} ]]; then
   echo "Syncing Banshee with LastFM"
   eval "${LFMSYNC}"
+  echo "Syncing Rhythmbox with Banshee"
+  eval "${RBSYNC}"
 else
   echo "Could not locate LastFM sync script"
   exit 1
 fi
 
 if [[ -z ${SPL} ]] && [[ -e ${PLGEN} ]]; then
-  echo "Generating Static Banshee Smart Playlists"
+  echo "Generating Static Rhythmbox Smart Playlists"
   eval "${PLGEN}"
 else
   echo "Could not locate playlist generator sync script"
