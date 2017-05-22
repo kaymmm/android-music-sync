@@ -5,7 +5,7 @@
 # -s do not sync rhythmbox with lastfm
 # -p do not update smart playlists
 # -h print usage
-while getopts "sxph" arg; do
+while getopts "sxpch" arg; do
   case $arg in
     s)
       SY=0
@@ -16,12 +16,16 @@ while getopts "sxph" arg; do
     p)
       SPL=0
       ;;
+    c)
+      COP=0
+      ;;
     h)
       echo -e "Usage:\n\tandroid_sync.sh [options]"
       echo -e "Options:"
       echo -e "\t-s\tdo not sync rhythmbox with lastfm"
       echo -e "\t-p\tdo not update smart playlists"
       echo -e "\t-x\tdo not copy files to temp storage"
+      echo -e "\t-c\tcall KDE Connect copy script after copying files"
       echo -e "\t-h\tprint this usage and quit"
       SY=0
       PL=0
@@ -37,6 +41,7 @@ TMPDIR=/mnt/ostrich/MusicTransfer/
 LFMSYNC=$HOME/Developer/rhythmbox-lastfm-sync/sync.py
 # RBSYNC=$HOME/Developer/rhythmbox-banshee-metadata-import/import.py
 PLGEN=$HOME/Developer/rhythmbox-playlist-generator/plgen.py
+KDECSCRIPT=$(pwd)/kdeconnect_sync.sh
 
 if [[ -z ${SY} ]]; then
   if [[ -e ${LFMSYNC} ]]; then
@@ -73,6 +78,12 @@ if [[ -z ${PL} ]]; then
     done
   else
     echo "Could not locate any playlists to copy to temp directory."
+  fi
+fi
+
+if [[ -n ${COP} ]]; then
+  if [[ -e ${KDECSCRIPT} ]]; then
+    eval "${KDECSCRIPT}"
   fi
 fi
 
