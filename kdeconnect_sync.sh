@@ -16,9 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 PLAYLISTS=$HOME/Playlists/*
-KDECONNECT_ID=57a853f4633b1ea0
+KDECONNECT_ID=4b3e517505c5474d
 KDECONNECT_DIR=/home/kmiyake/.config/kdeconnect/$KDECONNECT_ID/kdeconnect_sftp/$KDECONNECT_ID
-KDECONNECT_MUSICDIR=$KDECONNECT_DIR/Music
+KDECONNECT_MUSICDIR=$KDECONNECT_DIR/storage/emulated/0/Music
 TMPDIR=/mnt/ostrich/MusicTransfer/
 
 for f in $PLAYLISTS; do
