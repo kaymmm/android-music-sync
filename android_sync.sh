@@ -77,14 +77,16 @@ if [[ -z ${PL} ]]; then
   if ls ${PLAYLISTS} 1> /dev/null 2>&1; then
     echo "Copying from playlists to temp storage"
     rm -rf $TMPDIR
+    mkdir $TMPDIR
     for f in $PLAYLISTS; do
       echo "Fixing paths in $f"
       sed -i "s,$MUSICDIR,,g" "$f"
       sed -i "s,$ALTDIR,,g" "$f"
       sed -i "s,../Music/,,g" "$f"
       echo "Copying to temporary Music directory"
-      rsync -a --link-dest="$TMPDIR" --files-from=$f "$MUSICDIR" "$TMPDIR"
-      rsync -a "$f" "$TMPDIR"
+      # rsync -a --link-dest="$TMPDIR" --files-from=$f "$MUSICDIR" "$TMPDIR"
+      # rsync -a "$f" "$TMPDIR"
+      sed -e '/^#/d' -e "s|^\(.*\)$|$MUSICDIR\1|g" -e 's| |\ |g' -e 's|/|\/|g' "$f" | xargs -d '\n' -i{} ln -f {} "$TMPDIR"
     done
   else
     echo "Could not locate any playlists to copy to temp directory."
