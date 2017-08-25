@@ -44,10 +44,9 @@ while getopts "sxpch" arg; do
   esac
 done
 
-MUSICDIR=/mnt/ostrich/Music/
-ALTDIR=$HOME/Music/
+MUSICDIR=$HOME/Music/
 PLAYLISTS=$HOME/Playlists/*
-TMPDIR=/mnt/ostrich/MusicTransfer/
+TMPDIR=/mnt/ostrich/kmiyake/MusicTransfer/
 LFMSYNC=$HOME/Developer/rhythmbox-lastfm-sync/sync.py
 # RBSYNC=$HOME/Developer/rhythmbox-banshee-metadata-import/import.py
 PLGEN=$HOME/Developer/rhythmbox-playlist-generator/plgen.py
@@ -81,11 +80,10 @@ if [[ -z ${PL} ]]; then
     for f in $PLAYLISTS; do
       echo "Fixing paths in $f"
       sed -i "s,$MUSICDIR,,g" "$f"
-      sed -i "s,$ALTDIR,,g" "$f"
       sed -i "s,../Music/,,g" "$f"
       echo "Copying to temporary Music directory"
       # rsync -a --link-dest="$TMPDIR" --files-from=$f "$MUSICDIR" "$TMPDIR"
-      # rsync -a "$f" "$TMPDIR"
+      rsync -a "$f" "$TMPDIR"
       sed -e '/^#/d' -e "s|^\(.*\)$|$MUSICDIR\1|g" -e 's| |\ |g' -e 's|/|\/|g' "$f" | xargs -d '\n' -i{} ln -f {} "$TMPDIR"
     done
   else
