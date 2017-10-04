@@ -44,18 +44,28 @@ while getopts "sxpch" arg; do
   esac
 done
 
+# get the script's directory
+# see: https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+# set remaining paths accordingly
 MUSICDIR=$HOME/Music/
 PLAYLISTS=$HOME/Playlists/*
-TMPDIR=/mnt/ostrich/kmiyake/MusicTransfer/
-LFMSYNC=$HOME/Developer/rhythmbox-lastfm-sync/sync.py
-# RBSYNC=$HOME/Developer/rhythmbox-banshee-metadata-import/import.py
-PLGEN=$HOME/Developer/rhythmbox-playlist-generator/plgen.py
-KDECSCRIPT=$(pwd)/kdeconnect_sync.sh
+TMPDIR=$HOME/MusicTransfer/
+LFMSYNC=$DIR/lib/rhythmbox-lastfm-sync/sync.py
+PLGEN=$DIR/lib/rhythmbox-playlist-generator/plgen.py
+KDECSCRIPT=$DIR/kdeconnect_sync.sh
 
 if [[ -z ${SY} ]]; then
   if [[ -e ${LFMSYNC} ]]; then
     echo "Syncing Rhythmbox with LastFM"
-    eval "${LFMSYNC}"
+    eval "python3 ${LFMSYNC}"
   else
     echo "Could not locate LastFM sync script"
     exit 1
@@ -65,7 +75,7 @@ fi
 if [[ -z ${SPL} ]]; then
   if [[ -e ${PLGEN} ]]; then
     echo "Generating Smart Playlists from Rhythmbox library"
-    eval "${PLGEN}"
+    eval "python3 ${PLGEN}"
   else
     echo "Could not locate playlist generator script"
     exit 1
@@ -75,14 +85,13 @@ fi
 if [[ -z ${PL} ]]; then
   if ls ${PLAYLISTS} 1> /dev/null 2>&1; then
     echo "Copying from playlists to temp storage"
-    rm -rf $TMPDIR
-    mkdir $TMPDIR
+    rm -rf $TMPDIR/*
+    # mkdir $TMPDIR
     for f in $PLAYLISTS; do
       echo "Fixing paths in $f"
       sed -i "s,$MUSICDIR,,g" "$f"
       sed -i "s,../Music/,,g" "$f"
       echo "Copying to temporary Music directory"
-      # rsync -a --link-dest="$TMPDIR" --files-from=$f "$MUSICDIR" "$TMPDIR"
       rsync -a "$f" "$TMPDIR"
       sed -e '/^#/d' -e "s|^\(.*\)$|$MUSICDIR\1|g" -e 's| |\ |g' -e 's|/|\/|g' "$f" | xargs -d '\n' -i{} ln -f {} "$TMPDIR"
     done
@@ -93,7 +102,7 @@ fi
 
 if [[ -n ${COP} ]]; then
   if [[ -e ${KDECSCRIPT} ]]; then
-    eval "${KDECSCRIPT}"
+    eval "source ${KDECSCRIPT}"
   fi
 fi
 

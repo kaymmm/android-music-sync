@@ -1,0 +1,6 @@
+[submodule "lib/rhythmbox-lastfm-sync"]
+	path = lib/rhythmbox-lastfm-sync
+	url = git@github.com:kaymmm/rhythmbox-lastfm-sync
+[submodule "lib/rhythmbox-playlist-generator"]
+	path = lib/rhythmbox-playlist-generator
+	url = git@github.com:kaymmm/rhythmbox-playlist-generator
