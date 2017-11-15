@@ -64,7 +64,8 @@ KDECSCRIPT=$DIR/kdeconnect_sync.sh
 
 if [[ -z ${SY} ]]; then
   if [[ -e ${LFMSYNC} ]]; then
-    echo "Syncing Rhythmbox with LastFM"
+    echo "Syncing Rhythmbox with LastFM (killing Rhythmbox)"
+    killall rhythmbox
     eval "python3 ${LFMSYNC}"
   else
     echo "Could not locate LastFM sync script"
