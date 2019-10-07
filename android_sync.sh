@@ -56,7 +56,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 # set remaining paths accordingly
 MUSICDIR=$HOME/Music/
-PLAYLISTS=$HOME/Playlists/*
+PLAYLISTS=$HOME/Playlists/*.m3u
 TMPDIR=$HOME/MusicTransfer/
 LFMSYNC=$DIR/lib/rhythmbox-lastfm-sync/sync.py
 PLGEN=$DIR/lib/rhythmbox-playlist-generator/plgen.py
@@ -93,8 +93,15 @@ if [[ -z ${PL} ]]; then
       sed -i "s,$MUSICDIR,,g" "$f"
       sed -i "s,../Music/,,g" "$f"
       echo "Copying to temporary Music directory"
+      # copy playlist to temp directory
       rsync -a "$f" "$TMPDIR"
+      # 'copy' the files as links to the temp directory
       sed -e '/^#/d' -e "s|^\(.*\)$|$MUSICDIR\1|g" -e 's| |\ |g' -e 's|/|\/|g' "$f" | xargs -d '\n' -i{} ln -f {} "$TMPDIR"
+    done
+    for f in "$TMPDIR"*.m3u; do
+      echo "Cleaning up playlist paths for $f"
+      # remove paths from playlists
+      sed -i 's/.*\///' "$f"
     done
   else
     echo "Could not locate any playlists to copy to temp directory."
