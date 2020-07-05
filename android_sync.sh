@@ -99,7 +99,8 @@ if [[ -z ${PL} ]]; then
       # 'copy' the files as links to the temp directory
       sed -e '/^#/d' -e "s|^\(.*\)$|$MUSICDIR\1|g" -e 's| |\ |g' -e 's|/|\/|g' "$f" | xargs -d '\n' -i{} ln -f {} "$TMPDIR"
       echo "Adjusting $f for Airsonic"
-      sed -i "s,^[^#],${AIRSONIC_DIR}\0,g" "$f"
+      sed -i "s,^.*\n,," "$f"
+      sed -i "s,^,${AIRSONIC_DIR},g" "$f"
     done
     for f in "$TMPDIR"*.m3u; do
       echo "Cleaning up playlist paths for $f"
