@@ -26,16 +26,16 @@ while getopts "sxpch" arg; do
     p)
       SPL=0
       ;;
-    c)
-      COP=0
-      ;;
+    # c)
+    #   COP=0
+    #   ;;
     h)
       echo -e "Usage:\n\tandroid_sync.sh [options]"
       echo -e "Options:"
       echo -e "\t-s\tdo not sync rhythmbox with lastfm"
       echo -e "\t-p\tdo not update smart playlists"
       echo -e "\t-x\tdo not copy files to temp storage"
-      echo -e "\t-c\tcall KDE Connect copy script after copying files"
+      # echo -e "\t-c\tcall KDE Connect copy script after copying files"
       echo -e "\t-h\tprint this usage and quit"
       SY=0
       PL=0
@@ -57,11 +57,11 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # set remaining paths accordingly
 MUSICDIR=$HOME/Music/
 PLAYLISTS=$HOME/Playlists/*.m3u
-AIRSONIC_DIR=\/var\/music\/
-TMPDIR=$HOME/MusicTransfer/
+AIRSONIC_DIR=\/music\/
+# TMPDIR=$HOME/MusicTransfer/
 LFMSYNC=$DIR/lib/rhythmbox-lastfm-sync/sync.py
 PLGEN=$DIR/lib/rhythmbox-playlist-generator/plgen.py
-KDECSCRIPT=$DIR/kdeconnect_sync.sh
+# KDECSCRIPT=$DIR/kdeconnect_sync.sh
 
 if [[ -z ${SY} ]]; then
   if [[ -e ${LFMSYNC} ]]; then
@@ -87,7 +87,7 @@ fi
 if [[ -z ${PL} ]]; then
   if ls ${PLAYLISTS} 1> /dev/null 2>&1; then
     echo "Copying from playlists to temp storage"
-    rm -rf $TMPDIR/*
+    # rm -rf $TMPDIR/*
     # mkdir $TMPDIR
     for f in $PLAYLISTS; do
       echo "Fixing paths in $f"
@@ -95,26 +95,30 @@ if [[ -z ${PL} ]]; then
       sed -i "s,../Music/,,g" "$f"
       echo "Copying to temporary Music directory"
       # copy playlist to temp directory
-      rsync -a "$f" "$TMPDIR"
+      # rsync -a "$f" "$TMPDIR"
       # 'copy' the files as links to the temp directory
-      sed -e '/^#/d' -e "s|^\(.*\)$|$MUSICDIR\1|g" -e 's| |\ |g' -e 's|/|\/|g' "$f" | xargs -d '\n' -i{} ln -f {} "$TMPDIR"
+      # sed -e '/^#/d' -e "s|^\(.*\)$|$MUSICDIR\1|g" -e 's| |\ |g' -e 's|/|\/|g' "$f" | xargs -d '\n' -i{} ln -f {} "$TMPDIR"
+
+      # Fix playlists for airsonic compatibility
       echo "Adjusting $f for Airsonic"
-      sed -i "s,^.*\n,," "$f"
+      # Remove the comment lines
+      sed -i "/^#.*/d" "$f"
+      # Fix paths
       sed -i "s,^,${AIRSONIC_DIR},g" "$f"
     done
-    for f in "$TMPDIR"*.m3u; do
-      echo "Cleaning up playlist paths for $f"
-      # remove paths from playlists
-      sed -i 's/.*\///' "$f"
-    done
+    # for f in "$TMPDIR"*.m3u; do
+    #   echo "Cleaning up playlist paths for $f"
+    #   # remove paths from playlists
+    #   sed -i 's/.*\///' "$f"
+    # done
   else
     echo "Could not locate any playlists to copy to temp directory."
   fi
 fi
 
-if [[ -n ${COP} ]]; then
-  if [[ -e ${KDECSCRIPT} ]]; then
-    eval "source ${KDECSCRIPT}"
-  fi
-fi
+# if [[ -n ${COP} ]]; then
+#   if [[ -e ${KDECSCRIPT} ]]; then
+#     eval "source ${KDECSCRIPT}"
+#   fi
+# fi
 
